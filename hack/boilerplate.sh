@@ -19,7 +19,7 @@ ignore="vendor\|out"
 BOILERPLATEDIR=./hack/boilerplate
 # Grep returns a non-zero exit code if we don't match anything, which is good in this case.
 set +e
-files=$(python ${BOILERPLATEDIR}/boilerplate.py --rootdir . --boilerplate-dir ${BOILERPLATEDIR} | grep -v $ignore)
+files=$(python3 ${BOILERPLATEDIR}/boilerplate.py --rootdir . --boilerplate-dir ${BOILERPLATEDIR} | grep -v $ignore)
 set -e
 if [[ ! -z ${files} ]]; then
 	echo "Boilerplate missing in:"
