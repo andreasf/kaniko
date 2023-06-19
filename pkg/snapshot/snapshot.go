@@ -224,6 +224,14 @@ func writeToTar(t util.Tar, files, whiteouts []string) error {
 	addedPaths := make(map[string]bool)
 
 	for _, path := range whiteouts {
+		skipWhiteout, err := parentPathIsLink(path)
+		if err != nil {
+			return err
+		}
+		if skipWhiteout {
+			continue
+		}
+
 		if err := addParentDirectories(t, addedPaths, path); err != nil {
 			return err
 		}
@@ -245,6 +253,21 @@ func writeToTar(t util.Tar, files, whiteouts []string) error {
 		addedPaths[path] = true
 	}
 	return nil
+}
+
+func parentPathIsLink(path string) (bool, error) {
+	for _, parentPath := range util.ParentDirectories(path) {
+		lstat, err := os.Lstat(parentPath)
+		if err != nil {
+			return false, err
+		}
+
+		isLink := lstat.Mode()&os.ModeSymlink != 0
+		if isLink {
+			return true, err
+		}
+	}
+	return false, nil
 }
 
 func addParentDirectories(t util.Tar, addedPaths map[string]bool, path string) error {
